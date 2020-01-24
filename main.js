@@ -7,7 +7,8 @@ const prefix = config.prefix;
 
 client.on("ready", () =>{
     console.log("Bot Loaded. Nice.");
-    client.user.setPresence({ game: { name: 'In Development! C: 0.0.0 |D: 0.1.0', type: "Watching" }, status: 'idle' });
+    //client.user.setPresence({ game: { name: 'In Development! C: 0.0.0 |D: 0.1.0', type: "Watching" }, status: 'idle' });
+    client.user.setPresence({ game: { name: 'Version 1.0.0', type: "Watching" }, status: 'online' });
 
     client.commands = new Discord.Collection();
     const commandDirArray = fs.readdirSync("./commands");
