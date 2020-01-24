@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
 const fs = require("fs");
+const jsonfile = require("jsonfile");
 
 const prefix = config.prefix;
 
@@ -19,6 +20,9 @@ client.on("ready", () =>{
 });
 
 client.on("message", (message) => {
+    const guild = message.guild;
+    const gConfig = require(`./store/guilds/${guild.id}/guildConfig.json`);
+
     if(message.channel.type != "dm"){
         if(!message.content.startsWith(prefix) || message.author.id == client.user.id) return;
     
@@ -30,7 +34,11 @@ client.on("message", (message) => {
             return;
         }else{
             try{
-                command.execute(message, args, prefix, client, Discord);
+                if(gConfig.disabledCommands.indexOf(command.name) != -1){
+                    return message.reply("That command has been disabled by your server owner. Contact them for information.");
+                }else{
+                    command.execute(message, args, prefix, client, Discord);
+                }
             }catch(error){
                 console.error(error);
                 const embed = new Discord.RichEmbed()
@@ -39,6 +47,46 @@ client.on("message", (message) => {
                     .setColor("#ff0000");
                 message.channel.send({embed});
             }
+        }
+    }
+});
+
+client.on("guildCreate", (guild) => {
+    var dir = `./store/guilds/${guild.id}`;
+    var gConfFile = `${dir}/guildConfig.json`;
+
+    if (!fs.existsSync(dir)){
+        fs.mkdirSync(dir);
+        console.log(`[CHRONO] [guildCreate] ${dir} has been created successfully.`);
+        if(!fs.existsSync(gConfFile)){ 
+
+            var gConf = {
+                "name": guild.name,
+                "owner": guild.owner.id,
+                "disabledCommands": [],
+                "menus": {
+                    "mainSelector": {
+                        "enabled": false,
+                        "channel": ""
+                    }
+                }
+            }
+
+            jsonfile.writeFile(gConfFile, gConf, {spaces: 4}, err =>{
+                if(err){
+                    return message.reply(`There was an error writing to the file. Please try again later or contact Vex#1337`);
+                }else{
+                    console.log(`[CHRONO] [guildCreate] ${dir} has been populated with default data successfully.`);
+                    var embed = new Discord.RichEmbed()
+                        .setColor("#32a852")
+                        .setAuthor(`You added Chrono to ${guild.name}`)
+                        .addField(`Welcome to the Chrono family, ${guild.owner.displayName}!`, "Thanks for adding me! Read below for some top tips :)")
+                        .addField("Use the help command to get started!", "Just type `~help`.")
+                        .addField("Don't be afraid to ask for help!", "If you ever need assistance, just contact `Vex#1337`. If you find a bug, report it on `https://github.com/veraxonhd/chronos-bot`!")
+                        .setTimestamp(new Date());
+                    return guild.owner.send({embed});
+                }
+            });
         }
     }
 });
