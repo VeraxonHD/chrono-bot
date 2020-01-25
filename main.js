@@ -8,8 +8,8 @@ const prefix = config.prefix;
 
 client.on("ready", () =>{
     console.log("Bot Loaded. Nice.");
-    //client.user.setPresence({ game: { name: 'In Development! C: 0.0.0 |D: 0.1.0', type: "Watching" }, status: 'idle' });
-    client.user.setPresence({ game: { name: 'Version 1.1.0', type: "Watching" }, status: 'online' });
+    client.user.setPresence({ game: { name: 'In Development! C: 1.1.0 |D: 1.2.0', type: "Watching" }, status: 'idle' });
+    //client.user.setPresence({ game: { name: 'Version 1.1.0', type: "Watching" }, status: 'online' });
 
     client.commands = new Discord.Collection();
     const commandDirArray = fs.readdirSync("./commands");
@@ -54,40 +54,53 @@ client.on("message", (message) => {
 client.on("guildCreate", (guild) => {
     var dir = `./store/guilds/${guild.id}`;
     var gConfFile = `${dir}/guildConfig.json`;
+    var gEventFile = `${dir}/guildEvents.json`;
 
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir);
         console.log(`[CHRONO] [guildCreate] ${dir} has been created successfully.`);
-        if(!fs.existsSync(gConfFile)){ 
+    }
 
-            var gConf = {
-                "name": guild.name,
-                "owner": guild.owner.id,
-                "disabledCommands": [],
-                "menus": {
-                    "mainSelector": {
-                        "enabled": false,
-                        "channel": ""
-                    }
+    if(!fs.existsSync(gConfFile)){ 
+
+        var gConf = {
+            "name": guild.name,
+            "owner": guild.owner.id,
+            "disabledCommands": [],
+            "menus": {
+                "mainSelector": {
+                    "enabled": false,
+                    "channel": ""
                 }
             }
-
-            jsonfile.writeFile(gConfFile, gConf, {spaces: 4}, err =>{
-                if(err){
-                    return message.reply(`There was an error writing to the file. Please try again later or contact Vex#1337`);
-                }else{
-                    console.log(`[CHRONO] [guildCreate] ${dir} has been populated with default data successfully.`);
-                    var embed = new Discord.RichEmbed()
-                        .setColor("#32a852")
-                        .setAuthor(`You added Chrono to ${guild.name}`)
-                        .addField(`Welcome to the Chrono family, ${guild.owner.displayName}!`, "Thanks for adding me! Read below for some top tips :)")
-                        .addField("Use the help command to get started!", "Just type `~help`.")
-                        .addField("Don't be afraid to ask for help!", "If you ever need assistance, just contact `Vex#1337`. If you find a bug, report it on `https://github.com/veraxonhd/chronos-bot`!")
-                        .setTimestamp(new Date());
-                    return guild.owner.send({embed});
-                }
-            });
         }
+
+        jsonfile.writeFile(gConfFile, gConf, {spaces: 4}, err =>{
+            if(err){
+                return console.log(`[CHRONO] [guildCreate] [ERROR] - jsonfile failed to write to file ${gConfFile}`);
+            }else{
+                console.log(`[CHRONO] [guildCreate] ${dir} has been populated with default data successfully.`);
+                var embed = new Discord.RichEmbed()
+                    .setColor("#32a852")
+                    .setAuthor(`You added Chrono to ${guild.name}`)
+                    .addField(`Welcome to the Chrono family, ${guild.owner.displayName}!`, "Thanks for adding me! Read below for some top tips :)")
+                    .addField("Use the help command to get started!", "Just type `~help`.")
+                    .addField("Don't be afraid to ask for help!", "If you ever need assistance, just contact `Vex#1337`. If you find a bug, report it on `https://github.com/veraxonhd/chronos-bot`!")
+                    .setTimestamp(new Date());
+                guild.owner.send({embed});
+            }
+        });
+    }
+
+    if(!fs.existsSync(gEventFile)){ 
+        var gEvents = {};
+        jsonfile.writeFile(gEventFile, gEvents, {spaces: 4}, err =>{
+            if(err){
+                return console.log(`[CHRONO] [guildCreate] [ERROR] - jsonfile failed to write to file ${gEventFile}`);
+            }else{
+                console.log(`[CHRONO] [guildCreate] ${dir} has been populated with default data successfully.`);
+            }
+        });
     }
 });
 
