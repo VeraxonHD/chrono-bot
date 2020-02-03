@@ -9,10 +9,8 @@ module.exports = {
         const common = require("../store/common.js");
         const registered = require("../store/registered.json");
         const jsonfile = require("jsonfile");
-
-        const timezones = common.getTimeZoneList();
-
-        if(timezones.indexOf(args[0]) != -1){
+        
+        if(common.checkTimezoneValidity(args[0])){
             if(registered[message.author.id]){
                 registered[message.author.id].timezone = args[0];
             }else{
@@ -29,7 +27,7 @@ module.exports = {
                 }
             });
         }else{
-            return message.send(`That timezone doesn't exist. Check out a list of timezones with \`~timezones\``);
+            return message.channel.send(`Unfortunately, that's an invalid timezone. Timezones in Chrono are akin to local identifiers. Go to \`http://kevalbhatt.github.io/timezone-picker/\` to find a list of available ones!`);
         }
     }
 }
